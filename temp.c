@@ -1,93 +1,39 @@
 #include <stdio.h>
-#include <time.h>
-#define MAX_TERMS 501
-#define MAX_COL 501
+#include <string.h>
+#include <stdlib.h>
 
-typedef struct
+#define MAX_STACK_SIZE 60
+
+int Test[MAX_STACK_SIZE][14]; //[k층][n호]//
+void Check(int k, int n)
 {
-    int col;
-    int row;
-    int value;
-} term;
-
-term a[MAX_TERMS];
-term b[MAX_TERMS];
-
-void FAST_TRANS(term a[], term b[])
-{
-    int row_terms[MAX_COL];
-    int starting_pos[MAX_COL];
-    int i, j;
-    int num_cols = b[0].row = a[0].col;
-    int num_terms = b[0].value = a[0].value;
-    b[0].col = a[0].row;
-
-    if (num_terms > 0)
+    for (int al = 1; al <= k; al++)
     {
-        for (i = 0; i < num_cols; i++)
-            row_terms[i] = 0;
-        for (i = 1; i <= num_terms; i++)
-            row_terms[a[i].col]++;
-        starting_pos[0] = 1;
-        for (i = 1; i < num_cols; i++)
-            starting_pos[i] = starting_pos[i - 1] + row_terms[i - 1];
-        for (i = 1; i <= num_terms; i++)
+        for (int bl = 1; bl <= n; bl++)
         {
-            j = starting_pos[a[i].col]++;
-            b[j].row = a[i].col;
-            b[j].col = a[i].row;
-            b[j].value = a[i].value;
+            Test[al][bl] = Test[al][bl - 1] + Test[al - 1][bl];
         }
     }
 }
 
-void SIMPLE_TRANS(term a[], term b[])
+main()
 {
-    int n, i, j, currentb;
-    n = a[0].value;
-    b[0].row = a[0].col;
-    b[0].col = a[0].row;
-    b[0].value = n;
-    if (n > 0)
+    for (int i = 0; i < MAX_STACK_SIZE; i++)
     {
-        currentb = 1;
-        for (i = 0; i < a[0].col; i++)
-            for (j = 1; j <= n; j++)
-                if (a[j].col == i)
-                {
-                    b[currentb].row = a[j].col;
-                    b[currentb].col = a[j].row;
-                    b[currentb].value = a[j].value;
-                    currentb++;
-                }
+        Test[i][0] = 1; // 모든 층의 1호는 1명이 산다.//
     }
-}
-
-int main()
-{
-
-    int i;
-    for (i = 0; i < MAX_COL; i++)
+    for (int c = 1; c < 14; c++)
     {
-        a[i].row = i;
-        a[i].col = i;
-        a[i].value = 1;
+        Test[0][c] = (c + 1); // 0층의 i호에는 i명이 산다.//
     }
-
-    clock_t start = clock();
-    for (i = 0; i < 1000; i++)
+    int a, b, t;
+    scanf("%d", &t);
+    while (t != 0)
     {
-        FAST_TRANS(a, b);
+        scanf("%d", &a);
+        scanf("%d", &b);
+        Check(a, b);
+        printf("%d\n", Test[a][b - 1]);
+        t--;
     }
-    clock_t end = clock();
-
-    clock_t start2 = clock();
-    for (i = 0; i < 1000; i++)
-    {
-        SIMPLE_TRANS(a, b);
-    }
-    clock_t end2 = clock();
-
-    printf("FAST_TRANS: %lf\n", (double)(end - start) / CLOCKS_PER_SEC);
-    printf("SIMPLE_TRANS: %lf\n", (double)(end2 - start2) / CLOCKS_PER_SEC);
 }
